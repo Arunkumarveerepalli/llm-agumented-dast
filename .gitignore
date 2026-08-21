@@ -1,0 +1,32 @@
+ --- Secrets: never commit these ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+ 
+# --- Generated scan/recon output (may reference target internals) ---
+data/*.json
+recon_output.json
+scan_output.json
+*.log
+ 
+# --- Python ---
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+ 
+# --- IDE / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+ 
+# --- Dissertation drafts you don't want in version control history ---
+docs/*.docx#
+~$*.docx
+ 
