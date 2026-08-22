@@ -33,11 +33,13 @@ import requests
 from bs4 import BeautifulSoup
 
 from models import Finding, VulnClass, ScanResult
-from payloads import PAYLOADS, BOOLEAN_SQLI_INDICATORS, TIMING_BASED_PAYLOADS
+from payloads import PAYLOADS, BOOLEAN_SQLI_INDICATORS, TIMING_BASED_PAYLOADS, SQL_ERROR_STRINGS, CMDI_MARKERS, PATH_TRAVERSAL_MARKERS
 from baseline import capture_baseline
 from detector import detect_sqli, detect_xss, detect_cmdi, detect_path_traversal, detect_boolean_sqli_pair
 
 logger = logging.getLogger(__name__)
+
+SNIPPET_WINDOW = 200  # chars of context on each side of the found evidence
 
 # All four vuln classes are tested against every endpoint/param, regardless
 # of target. Slower than path-based inference, but portable: this is what
@@ -52,6 +54,45 @@ def refresh_csrf_token(session: requests.Session, page_url: str, field_name: str
     soup = BeautifulSoup(resp.text, "html.parser")
     token_input = soup.find("input", {"name": field_name})
     return token_input.get("value", "") if token_input else ""
+
+
+def extract_relevant_snippet(response_text: str, payload: str) -> str:
+    """
+    Returns a window of text centered on wherever the actual evidence
+    appears in the response, instead of blindly taking the first N
+    characters — which, for real HTML pages, is almost always just
+    boilerplate (DOCTYPE, head, title) that never contains the finding
+    itself. Every downstream consumer of this snippet (the LLM triage
+    layer especially) needs to actually be able to SEE the evidence it's
+    being asked to judge.
+
+    Search order: the payload itself (covers XSS reflection, and SQLi/
+    cmdi/path-traversal cases where the payload string still appears,
+    e.g. in an error message quoting the input) -> known detection
+    markers (SQL error strings, command-output markers, file-content
+    markers) -> fallback to the first chunk of the response if nothing
+    matched (e.g. a pure timing-based SQLi finding, where the response
+    body itself carries no direct textual evidence at all).
+    """
+    search_terms = [payload] + SQL_ERROR_STRINGS + CMDI_MARKERS + PATH_TRAVERSAL_MARKERS
+    lower_text = response_text.lower()
+
+    for term in search_terms:
+        if not term:
+            continue
+        idx = lower_text.find(term.lower())
+        if idx != -1:
+            start = max(0, idx - SNIPPET_WINDOW)
+            end = min(len(response_text), idx + len(term) + SNIPPET_WINDOW)
+            prefix = "..." if start > 0 else ""
+            suffix = "..." if end < len(response_text) else ""
+            return f"{prefix}{response_text[start:end]}{suffix}"
+
+    # Nothing found verbatim (e.g. pure timing-based detection, or a
+    # boolean-SQLi finding whose evidence is response SHAPE, not text) —
+    # first 300 chars is a reasonable fallback here since there's no
+    # better location to center on.
+    return response_text[:300]
 
 
 def run_detector(vuln_class: VulnClass, payload: str, response_text: str, baseline_text: str, response_time_ms: int):
@@ -78,7 +119,7 @@ def record_if_detected(result: ScanResult, detected, confidence, evidence, endpo
         confidence=confidence,
         payload=payload,
         evidence=evidence,
-        response_snippet=response_text[:300],
+        response_snippet=extract_relevant_snippet(response_text, payload),
         response_time_ms=elapsed_ms,
         baseline_length=baseline_len,
         response_length=len(response_text),
