@@ -28,6 +28,7 @@ def extract_forms(html: str, page_url: str) -> list[Endpoint]:
         method = (form_tag.get("method") or "GET").upper()
 
         inputs: list[Param] = []
+        submit_fields: dict[str, str] = {}
         csrf_field = None
 
         for input_tag in form_tag.find_all(["input", "textarea", "select"]):
@@ -36,7 +37,13 @@ def extract_forms(html: str, page_url: str) -> list[Endpoint]:
                 continue
             input_type = input_tag.get("type", "text").lower()
             if input_type in ("submit", "button", "image", "reset"):
-                continue  # not injectable data fields
+                # Not injectable, but many apps (DVWA included) only process
+                # the form if this field is present with its exact value —
+                # capture it so the scanner can send it unchanged on every
+                # request, rather than dropping it and silently never
+                # triggering the page's actual logic.
+                submit_fields[name] = input_tag.get("value", "")
+                continue
 
             inputs.append(
                 Param(
@@ -56,6 +63,7 @@ def extract_forms(html: str, page_url: str) -> list[Endpoint]:
             inputs=inputs,
             has_csrf_token=csrf_field is not None,
             csrf_field_name=csrf_field,
+            submit_fields=submit_fields,
         )
 
         endpoints.append(

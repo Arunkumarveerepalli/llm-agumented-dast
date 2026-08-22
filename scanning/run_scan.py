@@ -105,10 +105,13 @@ def main() -> int:
     result = run_scan(session, recon_data, target_name=args.target)
 
     result.save(args.output)
-    print(f"[+] Scan complete: {len(result.findings)} findings written to {args.output}")
+    print(f"[+] Scan complete: {result.total_tests_run} test cases run, {len(result.findings)} findings written to {args.output}")
 
-    detected_count = sum(1 for f in result.findings if f.detected)
-    print(f"[+] {detected_count} findings flagged as detected (pre-LLM-triage)")
+    by_class = {}
+    for f in result.findings:
+        by_class[f.vuln_class.value] = by_class.get(f.vuln_class.value, 0) + 1
+    for cls, count in sorted(by_class.items()):
+        print(f"    {cls}: {count}")
     return 0
 
 

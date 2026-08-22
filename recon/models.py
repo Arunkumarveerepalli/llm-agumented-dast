@@ -39,6 +39,7 @@ class FormSpec:
     has_csrf_token: bool = False
     csrf_field_name: str | None = None
     requires_auth: bool = True     # assume auth required unless proven otherwise
+    submit_fields: dict[str, str] = field(default_factory=dict)  # e.g. {"Submit": "Submit"} — sent as-is on every request, never fuzzed; many apps only run their query if the submit field is present
 
     def to_dict(self) -> dict:
         return {
@@ -48,6 +49,7 @@ class FormSpec:
             "has_csrf_token": self.has_csrf_token,
             "csrf_field_name": self.csrf_field_name,
             "requires_auth": self.requires_auth,
+            "submit_fields": self.submit_fields,
         }
 
 

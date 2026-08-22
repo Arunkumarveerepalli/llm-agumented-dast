@@ -19,13 +19,15 @@ def capture_baseline(
 ) -> tuple[str, int, int]:
     """
     Returns (response_text, response_length, response_time_ms) for the
-    endpoint's normal, unmutated request.
+    endpoint's normal, unmutated request. Respects the endpoint's actual
+    method: GET params go in the query string, POST data in the body —
+    sending GET-only defaults as a POST body would silently test nothing.
     """
     start = time.monotonic()
     if method.upper() == "POST":
         resp = session.post(url, data=form_data or {}, timeout=10)
     else:
-        resp = session.get(url, timeout=10)
+        resp = session.get(url, params=form_data or {}, timeout=10)
     elapsed_ms = int((time.monotonic() - start) * 1000)
 
     return resp.text, len(resp.text), elapsed_ms

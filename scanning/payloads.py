@@ -48,6 +48,17 @@ PATH_TRAVERSAL_MARKERS = [
     "/bin/sh",
 ]
 
+# Generic "your input was rejected" pages some apps show (DVWA's naive
+# input filter included). These cause a big response-length change from
+# baseline that looks exactly like a boolean-SQLi signal, but reflect the
+# app blocking the request outright — not the query behaving differently.
+BLOCK_PAGE_INDICATORS = [
+    "hacking attempt detected",
+    "attack detected",
+    "request blocked",
+    "forbidden",
+]
+
 CMDI_MARKERS = [
     "uid=",
     "gid=",
@@ -56,3 +67,9 @@ CMDI_MARKERS = [
 # Payloads whose detection relies on response timing rather than content
 TIMING_BASED_PAYLOADS = {"' OR SLEEP(2)-- -"}
 TIMING_THRESHOLD_MS = 1800  # comfortably below the 2000ms SLEEP, above normal latency
+
+# Payloads that are syntactically valid SQL (no error expected) and rely
+# instead on changing which rows the query returns — the boolean-based
+# SQLi class. Flagged via response-length deviation from baseline, not
+# error strings. This is a weaker, content-diff-based signal by nature.
+BOOLEAN_SQLI_INDICATORS = {"' OR '1'='1", "1' AND '1'='2"}
