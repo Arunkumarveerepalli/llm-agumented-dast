@@ -25,37 +25,57 @@ class TargetProfile:
     extra: dict = field(default_factory=dict)  # target-specific knobs (e.g. security level)
 
 
-def bootstrap_dvwa_session(profile: TargetProfile) -> requests.Session:
+def bootstrap_dvwa_session(profile: TargetProfile, max_login_attempts: int = 2) -> requests.Session:
     """
     Logs into DVWA and sets the security level cookie.
     Returns an authenticated requests.Session ready for the crawler.
+
+    Retries the login itself (not just the surrounding request) a couple
+    of times before giving up — a fresh session/CSRF token each attempt.
+    This absorbs one-off flakiness (e.g. the container's database not
+    fully warmed up yet) without masking a genuine credentials problem,
+    since a real credentials mismatch will fail identically every attempt
+    and still raise clearly after the retries are exhausted.
     """
-    session = requests.Session()
+    last_error = None
 
-    # Step 1: GET the login page to grab the CSRF token DVWA embeds in the form
-    login_page = session.get(profile.login_url, timeout=10)
-    soup = BeautifulSoup(login_page.text, "html.parser")
-    token_input = soup.find("input", {"name": "user_token"})
-    if token_input is None:
-        raise RuntimeError(
-            f"Could not find CSRF token on login page {profile.login_url}. "
-            "Is DVWA running and reachable at this URL?"
+    for attempt in range(1, max_login_attempts + 1):
+        session = requests.Session()
+
+        # Step 1: GET the login page to grab the CSRF token DVWA embeds in the form
+        login_page = session.get(profile.login_url, timeout=10)
+        soup = BeautifulSoup(login_page.text, "html.parser")
+        token_input = soup.find("input", {"name": "user_token"})
+        if token_input is None:
+            raise RuntimeError(
+                f"Could not find CSRF token on login page {profile.login_url}. "
+                "Is DVWA running and reachable at this URL?"
+            )
+        csrf_token = token_input.get("value", "")
+
+        # Step 2: POST credentials + token
+        login_payload = {
+            "username": profile.username,
+            "password": profile.password,
+            "Login": "Login",
+            "user_token": csrf_token,
+        }
+        resp = session.post(profile.login_url, data=login_payload, timeout=10)
+
+        if "login.php" not in resp.url.lower() and "login failed" not in resp.text.lower():
+            break  # success — fall through to security-level setup below
+
+        soup_snippet = BeautifulSoup(resp.text, "html.parser")
+        visible_text = soup_snippet.get_text(separator=" ", strip=True)[:300]
+        last_error = (
+            f"attempt {attempt}/{max_login_attempts} — HTTP {resp.status_code}, "
+            f"final URL {resp.url}, response text: {visible_text!r}"
         )
-    csrf_token = token_input.get("value", "")
-
-    # Step 2: POST credentials + token
-    login_payload = {
-        "username": profile.username,
-        "password": profile.password,
-        "Login": "Login",
-        "user_token": csrf_token,
-    }
-    resp = session.post(profile.login_url, data=login_payload, timeout=10)
-
-    if "login.php" in resp.url.lower() or "login failed" in resp.text.lower():
+        if attempt < max_login_attempts:
+            print(f"[!] DVWA login attempt {attempt} failed, retrying with a fresh session: {visible_text!r}")
+    else:
         raise RuntimeError(
-            "DVWA login failed — check credentials in TargetProfile. "
-            "(Detected: still on login.php after POST, or a 'login failed' message in the response.)"
+            f"DVWA login failed after {max_login_attempts} attempts. Last failure — {last_error}"
         )
 
     # Step 3: set security level (low/medium/high), stored in profile.extra

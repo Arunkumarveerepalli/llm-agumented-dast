@@ -210,21 +210,49 @@ def test_form_endpoint(
         test_boolean_sqli_for_param(send_fn, param_name, baseline_text, baseline_len, result, url)
 
 
+MAX_RETRIES = 2
+RETRY_DELAY_SECONDS = 3
+
+
 def run_scan(session: requests.Session, recon_data: dict, target_name: str = "dvwa") -> ScanResult:
     result = ScanResult(target=recon_data["target"])
     logger.info("Starting scan against target profile '%s' (all vuln classes on every endpoint)", target_name)
 
     for endpoint in recon_data["endpoints"]:
-        logger.info("Scanning endpoint: %s", endpoint["url"])
-        try:
-            if endpoint.get("form"):
-                test_form_endpoint(session, endpoint, result)
-            else:
-                test_query_param_endpoint(session, endpoint, result)
-        except requests.RequestException as exc:
-            logger.warning("Failed to test %s: %s", endpoint["url"], exc)
-            result.add_error(endpoint["url"], str(exc))
-            continue
+        url = endpoint["url"]
+        logger.info("Scanning endpoint: %s", url)
+
+        last_exc = None
+        for attempt in range(1, MAX_RETRIES + 2):  # initial attempt + MAX_RETRIES retries
+            # Snapshot state so a retry can roll back any tests that
+            # completed before a mid-loop failure — otherwise a timeout
+            # partway through would cause the retry to double-count the
+            # payloads that already succeeded.
+            findings_snapshot = len(result.findings)
+            tests_snapshot = result.total_tests_run
+
+            try:
+                if endpoint.get("form"):
+                    test_form_endpoint(session, endpoint, result)
+                else:
+                    test_query_param_endpoint(session, endpoint, result)
+                last_exc = None
+                break
+            except requests.RequestException as exc:
+                last_exc = exc
+                del result.findings[findings_snapshot:]
+                result.total_tests_run = tests_snapshot
+                if attempt <= MAX_RETRIES:
+                    logger.warning(
+                        "Attempt %d/%d failed for %s: %s — retrying in %ds",
+                        attempt, MAX_RETRIES + 1, url, exc, RETRY_DELAY_SECONDS,
+                    )
+                    time.sleep(RETRY_DELAY_SECONDS)
+                else:
+                    logger.warning("Final attempt failed for %s: %s — giving up", url, exc)
+
+        if last_exc is not None:
+            result.add_error(url, str(last_exc))
 
     logger.info("Scan complete: %d test cases run, %d findings", result.total_tests_run, len(result.findings))
     return result
