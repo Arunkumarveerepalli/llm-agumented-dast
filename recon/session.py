@@ -52,8 +52,11 @@ def bootstrap_dvwa_session(profile: TargetProfile) -> requests.Session:
     }
     resp = session.post(profile.login_url, data=login_payload, timeout=10)
 
-    if "login.php" in resp.url and "Login failed" in resp.text:
-        raise RuntimeError("DVWA login failed — check credentials in TargetProfile.")
+    if "login.php" in resp.url.lower() or "login failed" in resp.text.lower():
+        raise RuntimeError(
+            "DVWA login failed — check credentials in TargetProfile. "
+            "(Detected: still on login.php after POST, or a 'login failed' message in the response.)"
+        )
 
     # Step 3: set security level (low/medium/high), stored in profile.extra
     security_level = profile.extra.get("security_level", "low")
