@@ -18,6 +18,7 @@ import ollama
 
 from models import TriageVerdict, Verdict, LLMConfidence
 from prompts import SYSTEM_PROMPT, build_user_prompt
+from classification import get_standard_reference
 
 logger = logging.getLogger(__name__)
 
@@ -84,6 +85,7 @@ def triage_finding(finding: dict, model: str = "llama3.1:8b") -> TriageVerdict:
                 reasoning=data["reasoning"],
                 remediation=data["remediation"],
                 scanner_confidence=finding["confidence"],
+                standard_reference=get_standard_reference(finding["vuln_class"]),
             )
         except (json.JSONDecodeError, ValueError) as exc:
             last_error = exc

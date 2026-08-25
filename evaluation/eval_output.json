@@ -1,0 +1,235 @@
+{
+  "target": "http://localhost",
+  "summary": {
+    "llm_report_mean_completeness": 3.909,
+    "llm_report_count": 11,
+    "raw_alert_mean_completeness": 2.0,
+    "raw_alert_count": 11,
+    "rq3_result": "LLM-generated reports scored 3.909/5 on average vs raw scanner alerts at 2.0/5 \u2014 LLM reports are more complete"
+  },
+  "llm_report_scores": [
+    {
+      "finding_id": "F001",
+      "source": "llm_report",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": false,
+      "standard_reference": true,
+      "score": 3
+    },
+    {
+      "finding_id": "F002",
+      "source": "llm_report",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": false,
+      "standard_reference": true,
+      "score": 3
+    },
+    {
+      "finding_id": "F003",
+      "source": "llm_report",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": false,
+      "standard_reference": true,
+      "score": 3
+    },
+    {
+      "finding_id": "F004",
+      "source": "llm_report",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": true,
+      "standard_reference": true,
+      "score": 4
+    },
+    {
+      "finding_id": "F005",
+      "source": "llm_report",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": true,
+      "standard_reference": true,
+      "score": 4
+    },
+    {
+      "finding_id": "F006",
+      "source": "llm_report",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": true,
+      "standard_reference": true,
+      "score": 4
+    },
+    {
+      "finding_id": "F007",
+      "source": "llm_report",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": true,
+      "concrete_remediation_step": true,
+      "standard_reference": true,
+      "score": 5
+    },
+    {
+      "finding_id": "F008",
+      "source": "llm_report",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": true,
+      "concrete_remediation_step": true,
+      "standard_reference": true,
+      "score": 5
+    },
+    {
+      "finding_id": "F009",
+      "source": "llm_report",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": true,
+      "standard_reference": true,
+      "score": 4
+    },
+    {
+      "finding_id": "F010",
+      "source": "llm_report",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": true,
+      "standard_reference": true,
+      "score": 4
+    },
+    {
+      "finding_id": "F011",
+      "source": "llm_report",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": true,
+      "standard_reference": true,
+      "score": 4
+    }
+  ],
+  "raw_alert_scores": [
+    {
+      "finding_id": "F001",
+      "source": "raw_alert",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": false,
+      "standard_reference": false,
+      "score": 2
+    },
+    {
+      "finding_id": "F002",
+      "source": "raw_alert",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": false,
+      "standard_reference": false,
+      "score": 2
+    },
+    {
+      "finding_id": "F003",
+      "source": "raw_alert",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": false,
+      "standard_reference": false,
+      "score": 2
+    },
+    {
+      "finding_id": "F004",
+      "source": "raw_alert",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": false,
+      "standard_reference": false,
+      "score": 2
+    },
+    {
+      "finding_id": "F005",
+      "source": "raw_alert",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": false,
+      "standard_reference": false,
+      "score": 2
+    },
+    {
+      "finding_id": "F006",
+      "source": "raw_alert",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": false,
+      "standard_reference": false,
+      "score": 2
+    },
+    {
+      "finding_id": "F007",
+      "source": "raw_alert",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": false,
+      "standard_reference": false,
+      "score": 2
+    },
+    {
+      "finding_id": "F008",
+      "source": "raw_alert",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": false,
+      "standard_reference": false,
+      "score": 2
+    },
+    {
+      "finding_id": "F009",
+      "source": "raw_alert",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": false,
+      "standard_reference": false,
+      "score": 2
+    },
+    {
+      "finding_id": "F010",
+      "source": "raw_alert",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": false,
+      "standard_reference": false,
+      "score": 2
+    },
+    {
+      "finding_id": "F011",
+      "source": "raw_alert",
+      "vulnerability_identification": true,
+      "location_specificity": true,
+      "exploitability_explanation": false,
+      "concrete_remediation_step": false,
+      "standard_reference": false,
+      "score": 2
+    }
+  ],
+  "naive_comparison": null
+}

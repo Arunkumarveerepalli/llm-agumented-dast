@@ -35,6 +35,7 @@ class TriageVerdict:
     reasoning: str
     remediation: str
     scanner_confidence: str        # copied from the original Finding, for easy side-by-side comparison
+    standard_reference: str        # CWE ID + OWASP category, attached deterministically — see classification.py
 
     def to_dict(self) -> dict:
         d = asdict(self)
