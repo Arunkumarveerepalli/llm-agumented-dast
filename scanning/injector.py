@@ -35,7 +35,7 @@ from bs4 import BeautifulSoup
 from models import Finding, VulnClass, ScanResult
 from payloads import PAYLOADS, BOOLEAN_SQLI_INDICATORS, TIMING_BASED_PAYLOADS, SQL_ERROR_STRINGS, CMDI_MARKERS, PATH_TRAVERSAL_MARKERS
 from baseline import capture_baseline
-from detector import detect_sqli, detect_xss, detect_cmdi, detect_path_traversal, detect_boolean_sqli_pair
+from detector import detect_sqli, detect_xss, detect_cmdi, detect_path_traversal, detect_boolean_sqli_pair, detect_boolean_sqli_naive
 
 logger = logging.getLogger(__name__)
 
@@ -95,8 +95,10 @@ def extract_relevant_snippet(response_text: str, payload: str) -> str:
     return response_text[:300]
 
 
-def run_detector(vuln_class: VulnClass, payload: str, response_text: str, baseline_text: str, response_time_ms: int):
+def run_detector(vuln_class: VulnClass, payload: str, response_text: str, baseline_text: str, response_time_ms: int, naive_mode: bool = False):
     if vuln_class == VulnClass.SQLI:
+        if naive_mode and payload in BOOLEAN_SQLI_INDICATORS:
+            return detect_boolean_sqli_naive(payload, response_text, baseline_text)
         return detect_sqli(payload, response_text, response_time_ms, baseline_text)
     if vuln_class == VulnClass.XSS:
         return detect_xss(payload, response_text)
@@ -154,7 +156,7 @@ def test_boolean_sqli_for_param(
 
 
 def test_query_param_endpoint(
-    session: requests.Session, endpoint: dict, result: ScanResult
+    session: requests.Session, endpoint: dict, result: ScanResult, naive_mode: bool = False
 ) -> None:
     url = endpoint["url"]
     params = endpoint["params"]
@@ -166,8 +168,8 @@ def test_query_param_endpoint(
         param_name = param["name"]
         for vuln_class in classes:
             for payload in PAYLOADS[vuln_class]:
-                if payload in BOOLEAN_SQLI_INDICATORS:
-                    continue  # handled together below, not independently
+                if payload in BOOLEAN_SQLI_INDICATORS and not naive_mode:
+                    continue  # handled together below via the differential check, not independently
 
                 mutated_params = {p["name"]: p.get("default_value", "") for p in params}
                 mutated_params[param_name] = payload
@@ -181,8 +183,11 @@ def test_query_param_endpoint(
                 resp = session.get(url.split("?")[0], params=mutated_params, timeout=request_timeout)
                 elapsed_ms = int((time.monotonic() - start) * 1000)
 
-                detected, confidence, evidence = run_detector(vuln_class, payload, resp.text, baseline_text, elapsed_ms)
+                detected, confidence, evidence = run_detector(vuln_class, payload, resp.text, baseline_text, elapsed_ms, naive_mode)
                 record_if_detected(result, detected, confidence, evidence, url, param_name, vuln_class, payload, resp.text, elapsed_ms, baseline_len)
+
+        if naive_mode:
+            continue  # boolean payloads already tested individually above, in the naive-mode loop
 
         def send_fn(payload: str, _params=params, _param_name=param_name):
             mutated = {p["name"]: p.get("default_value", "") for p in _params}
@@ -195,7 +200,7 @@ def test_query_param_endpoint(
 
 
 def test_form_endpoint(
-    session: requests.Session, endpoint: dict, result: ScanResult
+    session: requests.Session, endpoint: dict, result: ScanResult, naive_mode: bool = False
 ) -> None:
     url = endpoint["url"]
     form = endpoint["form"]
@@ -213,8 +218,8 @@ def test_form_endpoint(
 
         for vuln_class in classes:
             for payload in PAYLOADS[vuln_class]:
-                if payload in BOOLEAN_SQLI_INDICATORS:
-                    continue  # handled together below, not independently
+                if payload in BOOLEAN_SQLI_INDICATORS and not naive_mode:
+                    continue  # handled together below via the differential check, not independently
 
                 mutated_data = {p["name"]: p.get("default_value", "") for p in endpoint["params"]}
                 mutated_data.update(form.get("submit_fields", {}))
@@ -232,8 +237,11 @@ def test_form_endpoint(
                     resp = session.post(url, data=mutated_data, timeout=request_timeout)
                 elapsed_ms = int((time.monotonic() - start) * 1000)
 
-                detected, confidence, evidence = run_detector(vuln_class, payload, resp.text, baseline_text, elapsed_ms)
+                detected, confidence, evidence = run_detector(vuln_class, payload, resp.text, baseline_text, elapsed_ms, naive_mode)
                 record_if_detected(result, detected, confidence, evidence, url, param_name, vuln_class, payload, resp.text, elapsed_ms, baseline_len)
+
+        if naive_mode:
+            continue  # boolean payloads already tested individually above, in the naive-mode loop
 
         def send_fn(payload: str, _endpoint=endpoint, _form=form, _param_name=param_name):
             mutated = {p["name"]: p.get("default_value", "") for p in _endpoint["params"]}
@@ -255,9 +263,12 @@ MAX_RETRIES = 2
 RETRY_DELAY_SECONDS = 3
 
 
-def run_scan(session: requests.Session, recon_data: dict, target_name: str = "dvwa") -> ScanResult:
+def run_scan(session: requests.Session, recon_data: dict, target_name: str = "dvwa", naive_mode: bool = False) -> ScanResult:
     result = ScanResult(target=recon_data["target"])
-    logger.info("Starting scan against target profile '%s' (all vuln classes on every endpoint)", target_name)
+    if naive_mode:
+        logger.info("Starting scan in NAIVE mode against target profile '%s' — raw baseline for RQ3, not for normal use", target_name)
+    else:
+        logger.info("Starting scan against target profile '%s' (all vuln classes on every endpoint)", target_name)
 
     for endpoint in recon_data["endpoints"]:
         url = endpoint["url"]
@@ -274,9 +285,9 @@ def run_scan(session: requests.Session, recon_data: dict, target_name: str = "dv
 
             try:
                 if endpoint.get("form"):
-                    test_form_endpoint(session, endpoint, result)
+                    test_form_endpoint(session, endpoint, result, naive_mode)
                 else:
-                    test_query_param_endpoint(session, endpoint, result)
+                    test_query_param_endpoint(session, endpoint, result, naive_mode)
                 last_exc = None
                 break
             except requests.RequestException as exc:

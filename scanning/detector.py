@@ -16,6 +16,30 @@ from models import Confidence
 from payloads import SQL_ERROR_STRINGS, PATH_TRAVERSAL_MARKERS, CMDI_MARKERS, TIMING_BASED_PAYLOADS, TIMING_THRESHOLD_MS, BOOLEAN_SQLI_INDICATORS, BLOCK_PAGE_INDICATORS
 
 
+def detect_boolean_sqli_naive(payload: str, response_text: str, baseline_text: str) -> tuple[bool, Confidence, str]:
+    """
+    A deliberately NAIVE version of boolean-SQLi detection: judges each
+    payload independently against baseline only, with no differential
+    comparison to its logical counterpart and no block-page guard.
+
+    This exists ONLY to generate a "raw scanner output" baseline for the
+    RQ3 evaluation — representing what a simple/typical signature-based
+    DAST tool would produce, false positives and all — so LLM triage's
+    actual false-positive-reduction effect can be measured against real,
+    honestly-generated noisy data rather than a hand-picked or
+    reconstructed example. Not used in normal scanning; see run_scan.py's
+    --naive-baseline flag.
+    """
+    length_diff = abs(len(response_text) - len(baseline_text))
+    length_ratio = length_diff / max(len(baseline_text), 1)
+    if length_ratio > 0.15:
+        return True, Confidence.LOW, (
+            f"response length changed {length_ratio:.0%} from baseline with no error string "
+            f"(naive independent-payload check — no differential or block-page filtering applied)"
+        )
+    return False, Confidence.LOW, "no significant length change from baseline"
+
+
 def detect_sqli(payload: str, response_text: str, response_time_ms: int, baseline_text: str = "") -> tuple[bool, Confidence, str]:
     if payload in TIMING_BASED_PAYLOADS and response_time_ms >= TIMING_THRESHOLD_MS:
         return True, Confidence.MEDIUM, f"response delayed {response_time_ms}ms — consistent with SLEEP() payload"

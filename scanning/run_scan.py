@@ -50,6 +50,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--recon-input", required=True, help="Path to recon_output.json")
     parser.add_argument("--output", default="scan_output.json")
     parser.add_argument("--verbose", action="store_true")
+    parser.add_argument(
+        "--naive-baseline", action="store_true",
+        help="Use a naive (non-differential) boolean-SQLi detector instead of the hardened one. "
+             "Generates a deliberately noisier 'raw scanner output' baseline for the RQ3 "
+             "false-positive-reduction comparison — not for normal scanning use.",
+    )
     return parser.parse_args()
 
 
@@ -102,7 +108,7 @@ def main() -> int:
         return 1
 
     print(f"[*] Scanning {len(recon_data['endpoints'])} endpoints...")
-    result = run_scan(session, recon_data, target_name=args.target)
+    result = run_scan(session, recon_data, target_name=args.target, naive_mode=args.naive_baseline)
 
     result.save(args.output)
     print(f"[+] Scan complete: {result.total_tests_run} test cases run, {len(result.findings)} findings written to {args.output}")
