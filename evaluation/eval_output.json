@@ -1,235 +1,27 @@
 {
   "target": "http://localhost",
   "summary": {
-    "llm_report_mean_completeness": 3.909,
-    "llm_report_count": 11,
-    "raw_alert_mean_completeness": 2.0,
-    "raw_alert_count": 11,
-    "rq3_result": "LLM-generated reports scored 3.909/5 on average vs raw scanner alerts at 2.0/5 \u2014 LLM reports are more complete"
+    "llm_report_mean_completeness": 0.0,
+    "llm_report_count": 0,
+    "raw_alert_mean_completeness": 0.0,
+    "raw_alert_count": 0,
+    "rq3_result": "LLM-generated reports scored 0.0/5 on average vs raw scanner alerts at 0.0/5 \u2014 no improvement observed"
   },
-  "llm_report_scores": [
-    {
-      "finding_id": "F001",
-      "source": "llm_report",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": false,
-      "standard_reference": true,
-      "score": 3
+  "llm_report_scores": [],
+  "raw_alert_scores": [],
+  "naive_comparison": {
+    "naive_baseline": {
+      "total_findings_from_scanner": 4,
+      "llm_verdict_true_positive": 4,
+      "llm_verdict_false_positive": 0,
+      "llm_verdict_false_positive_rate": 0.0
     },
-    {
-      "finding_id": "F002",
-      "source": "llm_report",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": false,
-      "standard_reference": true,
-      "score": 3
+    "hardened_scan": {
+      "total_findings_from_scanner": 11,
+      "llm_verdict_true_positive": 11,
+      "llm_verdict_false_positive": 0,
+      "llm_verdict_false_positive_rate": 0.0
     },
-    {
-      "finding_id": "F003",
-      "source": "llm_report",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": false,
-      "standard_reference": true,
-      "score": 3
-    },
-    {
-      "finding_id": "F004",
-      "source": "llm_report",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": true,
-      "standard_reference": true,
-      "score": 4
-    },
-    {
-      "finding_id": "F005",
-      "source": "llm_report",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": true,
-      "standard_reference": true,
-      "score": 4
-    },
-    {
-      "finding_id": "F006",
-      "source": "llm_report",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": true,
-      "standard_reference": true,
-      "score": 4
-    },
-    {
-      "finding_id": "F007",
-      "source": "llm_report",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": true,
-      "concrete_remediation_step": true,
-      "standard_reference": true,
-      "score": 5
-    },
-    {
-      "finding_id": "F008",
-      "source": "llm_report",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": true,
-      "concrete_remediation_step": true,
-      "standard_reference": true,
-      "score": 5
-    },
-    {
-      "finding_id": "F009",
-      "source": "llm_report",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": true,
-      "standard_reference": true,
-      "score": 4
-    },
-    {
-      "finding_id": "F010",
-      "source": "llm_report",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": true,
-      "standard_reference": true,
-      "score": 4
-    },
-    {
-      "finding_id": "F011",
-      "source": "llm_report",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": true,
-      "standard_reference": true,
-      "score": 4
-    }
-  ],
-  "raw_alert_scores": [
-    {
-      "finding_id": "F001",
-      "source": "raw_alert",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": false,
-      "standard_reference": false,
-      "score": 2
-    },
-    {
-      "finding_id": "F002",
-      "source": "raw_alert",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": false,
-      "standard_reference": false,
-      "score": 2
-    },
-    {
-      "finding_id": "F003",
-      "source": "raw_alert",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": false,
-      "standard_reference": false,
-      "score": 2
-    },
-    {
-      "finding_id": "F004",
-      "source": "raw_alert",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": false,
-      "standard_reference": false,
-      "score": 2
-    },
-    {
-      "finding_id": "F005",
-      "source": "raw_alert",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": false,
-      "standard_reference": false,
-      "score": 2
-    },
-    {
-      "finding_id": "F006",
-      "source": "raw_alert",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": false,
-      "standard_reference": false,
-      "score": 2
-    },
-    {
-      "finding_id": "F007",
-      "source": "raw_alert",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": false,
-      "standard_reference": false,
-      "score": 2
-    },
-    {
-      "finding_id": "F008",
-      "source": "raw_alert",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": false,
-      "standard_reference": false,
-      "score": 2
-    },
-    {
-      "finding_id": "F009",
-      "source": "raw_alert",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": false,
-      "standard_reference": false,
-      "score": 2
-    },
-    {
-      "finding_id": "F010",
-      "source": "raw_alert",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": false,
-      "standard_reference": false,
-      "score": 2
-    },
-    {
-      "finding_id": "F011",
-      "source": "raw_alert",
-      "vulnerability_identification": true,
-      "location_specificity": true,
-      "exploitability_explanation": false,
-      "concrete_remediation_step": false,
-      "standard_reference": false,
-      "score": 2
-    }
-  ],
-  "naive_comparison": null
+    "interpretation": "naive_baseline shows what the scanner's raw output looks like BEFORE the differential/block-page detector hardening AND before LLM triage \u2014 this is the 'typical simple DAST tool' comparison point. The llm_verdict_false_positive count within naive_baseline shows how many of those raw findings the LLM correctly identified as noise on its own, even from unhardened scanner output. Compare hardened_scan's numbers to show the combined effect of both detector hardening and LLM triage together."
+  }
 }

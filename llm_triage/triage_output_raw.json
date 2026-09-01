@@ -2,9 +2,9 @@
   "target": "http://localhost",
   "model_used": "llama3.1:8b",
   "summary": {
-    "total_findings_triaged": 12,
+    "total_findings_triaged": 4,
     "by_verdict": {
-      "true_positive": 12
+      "true_positive": 4
     },
     "triage_errors": 0
   },
@@ -13,97 +13,37 @@
       "finding_id": "F001",
       "verdict": "true_positive",
       "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi attack. Additionally, the response length changed by 598%, which is a strong indicator of a SQLi vulnerability.",
-      "remediation": "Investigate and fix the underlying SQLi vulnerability, which is likely due to a lack of input validation or sanitization in the 'doc' parameter.",
-      "scanner_confidence": "low"
+      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi attack. Additionally, the response length increased by 166%, which is a strong indicator of a SQLi vulnerability.",
+      "remediation": "Investigate and fix the underlying SQLi vulnerability, which is likely due to a lack of input validation or sanitization in the login.php endpoint.",
+      "scanner_confidence": "low",
+      "standard_reference": "CWE-89 (OWASP A03:2021 - Injection)"
     },
     {
       "finding_id": "F002",
       "verdict": "true_positive",
       "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi attack. Additionally, the response length changed by 598%, which is a strong indication of a SQLi vulnerability.",
-      "remediation": "Investigate and fix the underlying SQLi vulnerability, which is likely due to a lack of input validation or sanitization in the 'doc' parameter.",
-      "scanner_confidence": "low"
+      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi attack. Additionally, the response length increased by 166%, which is a strong indicator of a SQLi vulnerability.",
+      "remediation": "Investigate and fix the underlying SQLi vulnerability, potentially by implementing input validation and sanitization for the 'username' parameter.",
+      "scanner_confidence": "low",
+      "standard_reference": "CWE-89 (OWASP A03:2021 - Injection)"
     },
     {
       "finding_id": "F003",
       "verdict": "true_positive",
       "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi test. Additionally, the response length changed by 36% from baseline, which is a strong indication of a SQLi vulnerability.",
-      "remediation": "Investigate and fix the underlying SQLi vulnerability, which is likely due to a lack of input validation or sanitization in the 'doc' parameter.",
-      "scanner_confidence": "low"
+      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi attack. Additionally, the response length increased by 166%, which is a strong indication of a SQLi vulnerability.",
+      "remediation": "Investigate and fix the underlying SQLi vulnerability, which may involve updating the application's SQL queries to prevent injection attacks.",
+      "scanner_confidence": "low",
+      "standard_reference": "CWE-89 (OWASP A03:2021 - Injection)"
     },
     {
       "finding_id": "F004",
       "verdict": "true_positive",
       "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi test. Additionally, the response length changed by 36% from baseline, which is a strong indication of a SQLi vulnerability.",
-      "remediation": "Investigate and fix the underlying SQLi vulnerability, which may involve updating the application's SQL queries to prevent injection attacks.",
-      "scanner_confidence": "low"
-    },
-    {
-      "finding_id": "F005",
-      "verdict": "true_positive",
-      "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi test. Additionally, the response length changed by 64%, which is a strong indication of a potential SQLi vulnerability.",
-      "remediation": "Investigate and fix the underlying SQLi vulnerability, which may involve updating the application's SQL queries to use parameterized queries or prepared statements.",
-      "scanner_confidence": "low"
-    },
-    {
-      "finding_id": "F006",
-      "verdict": "true_positive",
-      "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi attack. Additionally, the response length changed by 64%, which is a strong indication of a SQLi vulnerability.",
-      "remediation": "Investigate and fix the underlying SQLi vulnerability, which may involve updating the application's SQL queries to use parameterized queries or prepared statements.",
-      "scanner_confidence": "low"
-    },
-    {
-      "finding_id": "F007",
-      "verdict": "true_positive",
-      "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi test. Additionally, the response length changed by 33% from baseline, which is a strong indicator of a SQLi vulnerability.",
-      "remediation": "Investigate and fix the underlying SQLi vulnerability, which may involve updating the application's SQL queries to use prepared statements or parameterized queries.",
-      "scanner_confidence": "low"
-    },
-    {
-      "finding_id": "F008",
-      "verdict": "true_positive",
-      "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi test. Additionally, the response length changed by 33% from baseline, which is a strong indicator of a SQLi vulnerability.",
-      "remediation": "Investigate and fix the underlying SQLi vulnerability, which may involve updating the application's SQL queries to use parameterized queries or prepared statements.",
-      "scanner_confidence": "low"
-    },
-    {
-      "finding_id": "F009",
-      "verdict": "true_positive",
-      "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi attack. Additionally, the response length increased by 166%, which is a strong indicator of a SQLi vulnerability.",
-      "remediation": "Investigate and fix the underlying SQLi vulnerability, which is likely due to a lack of input validation or sanitization in the login.php endpoint.",
-      "scanner_confidence": "low"
-    },
-    {
-      "finding_id": "F010",
-      "verdict": "true_positive",
-      "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi attack. Additionally, the response length increased by 166%, which is a strong indication of a SQLi vulnerability.",
-      "remediation": "Investigate and fix the underlying SQLi vulnerability, which may involve updating the application's SQL queries to use parameterized queries or prepared statements.",
-      "scanner_confidence": "low"
-    },
-    {
-      "finding_id": "F011",
-      "verdict": "true_positive",
-      "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi attack. Additionally, the response length increased by 166%, which is a strong indicator of a SQLi vulnerability.",
-      "remediation": "Investigate and fix the underlying SQLi vulnerability, which may involve updating the application's SQL queries to prevent injection attacks.",
-      "scanner_confidence": "low"
-    },
-    {
-      "finding_id": "F012",
-      "verdict": "true_positive",
-      "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi attack. Additionally, the response length increased by 166%, which is a strong indicator of a SQLi vulnerability.",
-      "remediation": "Investigate and fix the underlying SQLi vulnerability, which may involve updating the application's SQL queries to use parameterized queries or prepared statements.",
-      "scanner_confidence": "low"
+      "reasoning": "The response time for this request is significantly longer than normal, indicating a potential timing-based SQLi attack. Additionally, the response length changed by 166%, which is a strong indication of a SQLi vulnerability.",
+      "remediation": "Investigate and fix the underlying SQLi vulnerability, which may involve updating the application's SQL queries to properly sanitize user input.",
+      "scanner_confidence": "low",
+      "standard_reference": "CWE-89 (OWASP A03:2021 - Injection)"
     }
   ],
   "errors": []

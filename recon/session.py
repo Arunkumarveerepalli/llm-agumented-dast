@@ -6,10 +6,20 @@ DVWA requires: (1) log in with credentials + CSRF token, (2) set the
 security level cookie. This module keeps that logic behind a small
 TargetProfile abstraction so Juice Shop (or another target) can be added
 later without touching the crawler.
+
+Login retry behavior: real testing showed DVWA occasionally rejects the
+FIRST one or two login attempts right after being freshly hit — a
+"cold start" hiccup, likely session-initialization related on DVWA's
+side — then succeeds normally within a couple of seconds with the exact
+same credentials. Confirmed via Apache access logs: two consecutive
+POST /login.php returning 200 ("Login failed"), followed two seconds
+later by two consecutive POSTs returning 302 (success), same script, same
+run. A short delay plus a few more retry attempts absorbs this cleanly.
 """
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 import requests
 from bs4 import BeautifulSoup
@@ -25,17 +35,19 @@ class TargetProfile:
     extra: dict = field(default_factory=dict)  # target-specific knobs (e.g. security level)
 
 
-def bootstrap_dvwa_session(profile: TargetProfile, max_login_attempts: int = 2) -> requests.Session:
+def bootstrap_dvwa_session(
+    profile: TargetProfile, max_login_attempts: int = 4, retry_delay_seconds: float = 2.0
+) -> requests.Session:
     """
     Logs into DVWA and sets the security level cookie.
     Returns an authenticated requests.Session ready for the crawler.
 
-    Retries the login itself (not just the surrounding request) a couple
-    of times before giving up — a fresh session/CSRF token each attempt.
-    This absorbs one-off flakiness (e.g. the container's database not
-    fully warmed up yet) without masking a genuine credentials problem,
-    since a real credentials mismatch will fail identically every attempt
-    and still raise clearly after the retries are exhausted.
+    Retries the login itself (not just the surrounding request) several
+    times, with a short delay between attempts — a fresh session/CSRF
+    token each attempt. This absorbs DVWA's observed cold-start flakiness
+    without masking a genuine credentials problem, since a real
+    credentials mismatch will fail identically every attempt and still
+    raise clearly after all retries are exhausted.
     """
     last_error = None
 
@@ -72,7 +84,8 @@ def bootstrap_dvwa_session(profile: TargetProfile, max_login_attempts: int = 2) 
             f"final URL {resp.url}, response text: {visible_text!r}"
         )
         if attempt < max_login_attempts:
-            print(f"[!] DVWA login attempt {attempt} failed, retrying with a fresh session: {visible_text!r}")
+            print(f"[!] DVWA login attempt {attempt} failed, retrying in {retry_delay_seconds}s with a fresh session: {visible_text!r}")
+            time.sleep(retry_delay_seconds)
     else:
         raise RuntimeError(
             f"DVWA login failed after {max_login_attempts} attempts. Last failure — {last_error}"
