@@ -1,16 +1,6 @@
-"""
-Payload sets and detection signatures, one entry per vuln class.
-
-Deliberately small and named rather than a generic fuzzing wordlist —
-every payload here should be individually justifiable in a dissertation
-methodology section.
-"""
-
 from __future__ import annotations
 
 from models import VulnClass
-
-# --- Payloads ---
 
 PAYLOADS: dict[VulnClass, list[str]] = {
     VulnClass.SQLI: [
@@ -33,8 +23,6 @@ PAYLOADS: dict[VulnClass, list[str]] = {
     ],
 }
 
-# --- Detection signatures ---
-
 SQL_ERROR_STRINGS = [
     "sql syntax",
     "mysql_fetch",
@@ -48,10 +36,11 @@ PATH_TRAVERSAL_MARKERS = [
     "/bin/sh",
 ]
 
-# Generic "your input was rejected" pages some apps show (DVWA's naive
-# input filter included). These cause a big response-length change from
-# baseline that looks exactly like a boolean-SQLi signal, but reflect the
-# app blocking the request outright — not the query behaving differently.
+CMDI_MARKERS = [
+    "uid=",
+    "gid=",
+]
+
 BLOCK_PAGE_INDICATORS = [
     "hacking attempt detected",
     "attack detected",
@@ -59,17 +48,7 @@ BLOCK_PAGE_INDICATORS = [
     "forbidden",
 ]
 
-CMDI_MARKERS = [
-    "uid=",
-    "gid=",
-]
-
-# Payloads whose detection relies on response timing rather than content
 TIMING_BASED_PAYLOADS = {"' OR SLEEP(2)-- -"}
-TIMING_THRESHOLD_MS = 1800  # comfortably below the 2000ms SLEEP, above normal latency
+TIMING_THRESHOLD_MS = 1800
 
-# Payloads that are syntactically valid SQL (no error expected) and rely
-# instead on changing which rows the query returns — the boolean-based
-# SQLi class. Flagged via response-length deviation from baseline, not
-# error strings. This is a weaker, content-diff-based signal by nature.
 BOOLEAN_SQLI_INDICATORS = {"' OR '1'='1", "1' AND '1'='2"}

@@ -1,25 +1,3 @@
-"""
-Data models for the scanning module.
-
-Mirrors the pattern from recon/models.py: dataclasses define the JSON
-contract this module hands to the LLM triage layer. Scanning reads
-recon_output.json in, and writes scan_output.json out — no in-memory
-wiring between phases.
-
-Design choices made after reviewing real scan output against DVWA:
-  - Only DETECTED findings are serialized. Out of 318 test cases in a
-    real run, only ~10 were genuine detections — writing all 318 to disk
-    added noise without adding value; a "no vulnerability found" result
-    isn't something the LLM triage layer needs to reason about. Totals
-    are preserved in the summary block instead, so the methodology is
-    still fully auditable without the dead weight.
-  - Confidence is explicit, not implied by evidence wording, so the LLM
-    triage layer can weigh findings programmatically instead of parsing
-    prose.
-  - Each finding gets a short stable ID so triage output can reference
-    "F003" instead of repeating the full endpoint/param/payload each time.
-"""
-
 from __future__ import annotations
 
 from dataclasses import dataclass, field, asdict
@@ -36,23 +14,6 @@ class VulnClass(str, Enum):
 
 
 class Confidence(str, Enum):
-    """
-    How much weight the detector itself puts behind a finding, based on
-    which detection mechanism fired — not a probability, just a signal
-    for the LLM triage layer to weigh accordingly rather than treating
-    every finding as equally trustworthy.
-
-    HIGH:   a direct, unambiguous signature — an SQL error string,
-            a command-output marker, a file-content marker, or a payload
-            reflected verbatim and unescaped.
-    MEDIUM: a real but indirect signal — response timing consistent with
-            an injected delay, which can in principle be affected by
-            network jitter or server load even though a 10s delay
-            against a 2s SLEEP is a strong indicator in practice.
-    LOW:    an inferred signal from response-shape comparison rather than
-            a direct marker — e.g. the boolean-based SQLi differential
-            check. Real, but the weakest category by construction.
-    """
     HIGH = "high"
     MEDIUM = "medium"
     LOW = "low"
@@ -84,7 +45,7 @@ class ScanResult:
     target: str
     total_tests_run: int = 0
     findings: list[Finding] = field(default_factory=list)
-    errors: list[dict] = field(default_factory=list)  # {"endpoint": ..., "error": ...} — endpoints that failed entirely, so gaps in coverage are visible in the output itself, not just console logs
+    errors: list[dict] = field(default_factory=list)
 
     def add(self, finding: Finding) -> None:
         self.findings.append(finding)

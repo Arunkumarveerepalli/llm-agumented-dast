@@ -13,8 +13,8 @@
       "finding_id": "F001",
       "verdict": "true_positive",
       "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly delayed (10015ms) compared to typical unmutated requests, which is a strong indication of a timing-based SQLi test. The payload sent was a timing-based SQLi test, and the delay is consistent with the expected behavior.",
-      "remediation": "Investigate and fix the underlying SQLi vulnerability, potentially by implementing proper input validation and sanitization for user-supplied input, such as the 'username' parameter.",
+      "reasoning": "The response time for this request is significantly delayed (10016ms) compared to typical unmutated requests, which is a strong indication of a timing-based SQLi test. The payload sent was a timing-based test, and the delay is consistent with the expected behavior.",
+      "remediation": "Investigate and fix the underlying SQLi vulnerability, potentially by implementing input validation and sanitization for the 'username' parameter.",
       "scanner_confidence": "medium",
       "standard_reference": "CWE-89 (OWASP A03:2021 - Injection)"
     },
@@ -22,8 +22,8 @@
       "finding_id": "F002",
       "verdict": "true_positive",
       "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly delayed, with a 20x increase over the typical response time. This is consistent with the SLEEP() payload being executed, which is a strong indicator of a SQL injection vulnerability.",
-      "remediation": "Review and update the application's SQL queries to prevent timing-based attacks, and consider implementing additional security measures such as query parameterization or prepared statements.",
+      "reasoning": "The response time for this request is significantly delayed (10015ms) compared to typical unmutated requests, which is a strong indication of a timing-based SQLi test. The payload sent was a timing-based SQLi test, and the scanner's detection evidence supports this conclusion.",
+      "remediation": "Investigate and fix the underlying SQL injection vulnerability, which is likely due to inadequate input validation or sanitization in the application's database queries.",
       "scanner_confidence": "medium",
       "standard_reference": "CWE-89 (OWASP A03:2021 - Injection)"
     },
@@ -31,8 +31,8 @@
       "finding_id": "F003",
       "verdict": "true_positive",
       "llm_confidence": "high",
-      "reasoning": "The response time for this request is significantly delayed, indicating a potential timing-based SQLi test. The scanner's detection evidence shows a consistent delay of 10 seconds, which is a strong signal of a SQLi vulnerability. The baseline response length and time are also consistent with the presence of a SLEEP() payload.",
-      "remediation": "Review the application's database queries and ensure that user input is properly sanitized and escaped to prevent SQL injection attacks. Consider implementing a Web Application Firewall (WAF) to detect and block malicious SQLi attempts.",
+      "reasoning": "The response time for this request is significantly delayed (10015ms) compared to typical unmutated requests (well under 500ms), which is a strong indication of a timing-based SQLi test. This meets the sqli proof standard of a response time far longer than normal.",
+      "remediation": "Investigate and fix the underlying SQL injection vulnerability, which is likely related to the 'id' parameter. Consider implementing input validation and sanitization to prevent such attacks.",
       "scanner_confidence": "medium",
       "standard_reference": "CWE-89 (OWASP A03:2021 - Injection)"
     },
@@ -40,8 +40,8 @@
       "finding_id": "F004",
       "verdict": "true_positive",
       "llm_confidence": "high",
-      "reasoning": "The payload '<script>alert(1)</script>' appears unescaped in HTML context, specifically inside a <pre> tag, which a browser would parse as markup. This meets the xss proof standard.",
-      "remediation": "Validate and sanitize user input, especially for fields like 'name' that are used in HTML context. Consider using a whitelist approach to ensure only expected characters are allowed.",
+      "reasoning": "The payload '<script>alert(1)</script>' appears unescaped in HTML context, specifically within a <pre> tag, which a browser would parse as markup. This meets the xss proof standard.",
+      "remediation": "Validate and sanitize user input for the 'name' parameter, ensuring any user-submitted data is properly escaped before being rendered in the response.",
       "scanner_confidence": "high",
       "standard_reference": "CWE-79 (OWASP A03:2021 - Injection)"
     },
@@ -49,8 +49,8 @@
       "finding_id": "F005",
       "verdict": "true_positive",
       "llm_confidence": "high",
-      "reasoning": "The payload appears unescaped in HTML context, specifically inside a <pre> tag, which a browser would parse as markup. This meets the xss proof standard, as the payload is not escaped and could be executed as JavaScript.",
-      "remediation": "Validate and escape user input for the 'name' parameter, and ensure that any user-supplied content is not executed as JavaScript.",
+      "reasoning": "The payload appears unescaped in an HTML context that a browser would parse as markup, specifically inside a <pre> tag. This meets the xss proof standard, which requires the payload to appear unescaped in HTML that a browser would parse as markup.",
+      "remediation": "Remove or escape the user-input field in the form, and ensure that any user-input is properly sanitized before being displayed in the response.",
       "scanner_confidence": "high",
       "standard_reference": "CWE-79 (OWASP A03:2021 - Injection)"
     },
@@ -59,7 +59,7 @@
       "verdict": "true_positive",
       "llm_confidence": "high",
       "reasoning": "The payload '<script>alert(1)</script>' appears unescaped in HTML context, specifically within a <div> tag, which a browser would parse as markup. This meets the xss proof standard.",
-      "remediation": "Ensure that user-inputted data is properly sanitized and escaped before rendering it in the application's HTML output, particularly in contexts where it could be interpreted as markup.",
+      "remediation": "Ensure that user-inputted data is properly sanitized and escaped before being inserted into the application's HTML responses, particularly in areas where user-generated content is displayed.",
       "scanner_confidence": "high",
       "standard_reference": "CWE-79 (OWASP A03:2021 - Injection)"
     },
@@ -67,8 +67,8 @@
       "finding_id": "F007",
       "verdict": "true_positive",
       "llm_confidence": "high",
-      "reasoning": "The payload appears unescaped in HTML that a browser would parse as markup, specifically inside a <div> tag context. This meets the xss proof standard, as the payload is not escaped and would be executed as JavaScript.",
-      "remediation": "Validate and sanitize user input for the txtName parameter to prevent reflected XSS attacks. Ensure that any user input is properly escaped and sanitized before being displayed in the guestbook comments.",
+      "reasoning": "The payload appears unescaped in HTML that a browser would parse as markup, specifically inside a <div> tag context. This meets the xss proof standard, which requires the payload to appear unescaped in HTML that a browser would parse as markup.",
+      "remediation": "Validate and sanitize user input for the txtName parameter to prevent reflected XSS attacks. Ensure that any user input is properly escaped and sanitized before being rendered in the response.",
       "scanner_confidence": "high",
       "standard_reference": "CWE-79 (OWASP A03:2021 - Injection)"
     },
@@ -77,7 +77,7 @@
       "verdict": "true_positive",
       "llm_confidence": "high",
       "reasoning": "The payload '<script>alert(1)</script>' appears unescaped in HTML context, specifically within a <div> tag, which a browser would parse as markup. This meets the xss proof standard.",
-      "remediation": "Validate and sanitize user input for the mtxMessage parameter to prevent reflected XSS attacks. Consider implementing a Content Security Policy (CSP) to further mitigate the risk.",
+      "remediation": "Validate and sanitize user input for the mtxMessage parameter to prevent reflected XSS attacks.",
       "scanner_confidence": "high",
       "standard_reference": "CWE-79 (OWASP A03:2021 - Injection)"
     },
@@ -86,7 +86,7 @@
       "verdict": "true_positive",
       "llm_confidence": "high",
       "reasoning": "The payload appears unescaped in HTML that a browser would parse as markup, specifically inside a <div> tag context. This is sufficient proof to classify this as an XSS vulnerability.",
-      "remediation": "Validate and sanitize user input for the mtxMessage parameter to prevent reflected XSS attacks. Ensure that any user input is properly escaped and not executed as JavaScript.",
+      "remediation": "Validate and sanitize user input for the mtxMessage parameter to prevent reflected XSS attacks. Consider implementing a Content Security Policy (CSP) to further mitigate the risk.",
       "scanner_confidence": "high",
       "standard_reference": "CWE-79 (OWASP A03:2021 - Injection)"
     },
@@ -94,8 +94,8 @@
       "finding_id": "F010",
       "verdict": "true_positive",
       "llm_confidence": "high",
-      "reasoning": "The payload '<script>alert(1)</script>' appears unescaped in HTML context, specifically within a <script> tag, which a browser would parse as markup. This meets the xss proof standard.",
-      "remediation": "Update the application to properly sanitize and escape user-input data, especially in contexts where it's inserted into HTML attributes or tags.",
+      "reasoning": "The payload '<script>alert(1)</script>' appears unescaped in the response, specifically within a <script> tag, which would be parsed as markup by a browser. This meets the xss proof standard.",
+      "remediation": "Update the application to properly sanitize and escape user-input data, especially in contexts where it's inserted into HTML tags.",
       "scanner_confidence": "high",
       "standard_reference": "CWE-79 (OWASP A03:2021 - Injection)"
     },
@@ -103,8 +103,8 @@
       "finding_id": "F011",
       "verdict": "true_positive",
       "llm_confidence": "high",
-      "reasoning": "The payload appears unescaped in HTML context, specifically inside a <script> tag, which a browser would parse as markup. This meets the xss proof standard.",
-      "remediation": "Remove or escape the vulnerable script tag in the response, ensuring that any user-input data is properly sanitized before being included in the HTML output.",
+      "reasoning": "The payload was reflected unescaped in HTML, specifically inside a <script> tag, which a browser would parse as markup. This meets the xss proof standard, as the payload appears unescaped in an HTML context that a browser would execute.",
+      "remediation": "Review the application's Content Security Policy (CSP) configuration to ensure it is properly set up to prevent script inclusion from external sources, and consider implementing a Content Security Policy (CSP) header to define which sources of content are allowed to be executed.",
       "scanner_confidence": "high",
       "standard_reference": "CWE-79 (OWASP A03:2021 - Injection)"
     }

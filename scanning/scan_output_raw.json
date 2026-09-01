@@ -1,68 +1,120 @@
 {
   "target": "http://localhost",
   "summary": {
-    "total_tests_run": 20,
-    "findings_count": 4,
+    "total_tests_run": 310,
+    "findings_count": 8,
     "by_vuln_class": {
-      "sqli": 4
+      "sqli": 8
     },
     "by_confidence": {
-      "low": 4
+      "low": 8
     },
     "endpoints_failed": 0
   },
   "findings": [
     {
       "id": "F001",
-      "endpoint": "http://localhost/login.php",
-      "param": "username",
+      "endpoint": "http://localhost/instructions.php?doc=PDF",
+      "param": "doc",
       "vuln_class": "sqli",
       "confidence": "low",
       "payload": "' OR '1'='1",
-      "evidence": "response length changed 166% from baseline with no error string (naive independent-payload check \u2014 no differential or block-page filtering applied)",
-      "response_snippet": "\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n\r\n\t<head>\r\n\t\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n\r\n\t\t<title>Setup :: Damn Vulnerable Web Application (DVW",
-      "response_time_ms": 79,
-      "baseline_length": 1573,
-      "response_length": 4185
+      "evidence": "response length changed 598% from baseline with no error string (naive independent-payload check \u2014 no differential or block-page filtering applied)",
+      "response_snippet": "\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n\r\n\t<head>\r\n\t\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n\r\n\t\t<title>Instructions :: Damn Vulnerable Web Applicati",
+      "response_time_ms": 0,
+      "baseline_length": 2007,
+      "response_length": 14014
     },
     {
       "id": "F002",
-      "endpoint": "http://localhost/login.php",
-      "param": "username",
+      "endpoint": "http://localhost/instructions.php?doc=PDF",
+      "param": "doc",
       "vuln_class": "sqli",
       "confidence": "low",
       "payload": "1' AND '1'='2",
-      "evidence": "response length changed 166% from baseline with no error string (naive independent-payload check \u2014 no differential or block-page filtering applied)",
-      "response_snippet": "\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n\r\n\t<head>\r\n\t\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n\r\n\t\t<title>Setup :: Damn Vulnerable Web Application (DVW",
-      "response_time_ms": 77,
-      "baseline_length": 1573,
-      "response_length": 4185
+      "evidence": "response length changed 598% from baseline with no error string (naive independent-payload check \u2014 no differential or block-page filtering applied)",
+      "response_snippet": "\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n\r\n\t<head>\r\n\t\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n\r\n\t\t<title>Instructions :: Damn Vulnerable Web Applicati",
+      "response_time_ms": 0,
+      "baseline_length": 2007,
+      "response_length": 14014
     },
     {
       "id": "F003",
-      "endpoint": "http://localhost/login.php",
-      "param": "password",
+      "endpoint": "http://localhost/instructions.php?doc=changelog",
+      "param": "doc",
       "vuln_class": "sqli",
       "confidence": "low",
       "payload": "' OR '1'='1",
-      "evidence": "response length changed 166% from baseline with no error string (naive independent-payload check \u2014 no differential or block-page filtering applied)",
-      "response_snippet": "\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n\r\n\t<head>\r\n\t\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n\r\n\t\t<title>Setup :: Damn Vulnerable Web Application (DVW",
-      "response_time_ms": 77,
-      "baseline_length": 1573,
-      "response_length": 4185
+      "evidence": "response length changed 36% from baseline with no error string (naive independent-payload check \u2014 no differential or block-page filtering applied)",
+      "response_snippet": "\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n\r\n\t<head>\r\n\t\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n\r\n\t\t<title>Instructions :: Damn Vulnerable Web Applicati",
+      "response_time_ms": 15,
+      "baseline_length": 10267,
+      "response_length": 14014
     },
     {
       "id": "F004",
-      "endpoint": "http://localhost/login.php",
-      "param": "password",
+      "endpoint": "http://localhost/instructions.php?doc=changelog",
+      "param": "doc",
       "vuln_class": "sqli",
       "confidence": "low",
       "payload": "1' AND '1'='2",
-      "evidence": "response length changed 166% from baseline with no error string (naive independent-payload check \u2014 no differential or block-page filtering applied)",
-      "response_snippet": "\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n\r\n\t<head>\r\n\t\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n\r\n\t\t<title>Setup :: Damn Vulnerable Web Application (DVW",
-      "response_time_ms": 62,
-      "baseline_length": 1573,
-      "response_length": 4185
+      "evidence": "response length changed 36% from baseline with no error string (naive independent-payload check \u2014 no differential or block-page filtering applied)",
+      "response_snippet": "\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n\r\n\t<head>\r\n\t\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n\r\n\t\t<title>Instructions :: Damn Vulnerable Web Applicati",
+      "response_time_ms": 0,
+      "baseline_length": 10267,
+      "response_length": 14014
+    },
+    {
+      "id": "F005",
+      "endpoint": "http://localhost/instructions.php?doc=copying",
+      "param": "doc",
+      "vuln_class": "sqli",
+      "confidence": "low",
+      "payload": "' OR '1'='1",
+      "evidence": "response length changed 64% from baseline with no error string (naive independent-payload check \u2014 no differential or block-page filtering applied)",
+      "response_snippet": "\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n\r\n\t<head>\r\n\t\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n\r\n\t\t<title>Instructions :: Damn Vulnerable Web Applicati",
+      "response_time_ms": 0,
+      "baseline_length": 38781,
+      "response_length": 14014
+    },
+    {
+      "id": "F006",
+      "endpoint": "http://localhost/instructions.php?doc=copying",
+      "param": "doc",
+      "vuln_class": "sqli",
+      "confidence": "low",
+      "payload": "1' AND '1'='2",
+      "evidence": "response length changed 64% from baseline with no error string (naive independent-payload check \u2014 no differential or block-page filtering applied)",
+      "response_snippet": "\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n\r\n\t<head>\r\n\t\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n\r\n\t\t<title>Instructions :: Damn Vulnerable Web Applicati",
+      "response_time_ms": 0,
+      "baseline_length": 38781,
+      "response_length": 14014
+    },
+    {
+      "id": "F007",
+      "endpoint": "http://localhost/instructions.php?doc=PHPIDS-license",
+      "param": "doc",
+      "vuln_class": "sqli",
+      "confidence": "low",
+      "payload": "' OR '1'='1",
+      "evidence": "response length changed 33% from baseline with no error string (naive independent-payload check \u2014 no differential or block-page filtering applied)",
+      "response_snippet": "\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n\r\n\t<head>\r\n\t\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n\r\n\t\t<title>Instructions :: Damn Vulnerable Web Applicati",
+      "response_time_ms": 0,
+      "baseline_length": 10571,
+      "response_length": 14014
+    },
+    {
+      "id": "F008",
+      "endpoint": "http://localhost/instructions.php?doc=PHPIDS-license",
+      "param": "doc",
+      "vuln_class": "sqli",
+      "confidence": "low",
+      "payload": "1' AND '1'='2",
+      "evidence": "response length changed 33% from baseline with no error string (naive independent-payload check \u2014 no differential or block-page filtering applied)",
+      "response_snippet": "\r\n<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">\r\n\r\n<html xmlns=\"http://www.w3.org/1999/xhtml\">\r\n\r\n\t<head>\r\n\t\t<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\r\n\r\n\t\t<title>Instructions :: Damn Vulnerable Web Applicati",
+      "response_time_ms": 15,
+      "baseline_length": 10571,
+      "response_length": 14014
     }
   ],
   "errors": []

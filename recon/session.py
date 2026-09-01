@@ -1,25 +1,26 @@
 """
 Session bootstrap.
 
-Recon needs an authenticated requests.Session before crawling can start.
-DVWA requires: (1) log in with credentials + CSRF token, (2) set the
-security level cookie. This module keeps that logic behind a small
-TargetProfile abstraction so Juice Shop (or another target) can be added
-later without touching the crawler.
+Root cause finally confirmed via Apache access logs: DVWA's login POST
+returned 302 (success) on every single attempt from python-requests --
+100% success at the server. The failures were a bug in OUR OWN
+success-detection logic: it checked where the request ended up AFTER
+requests automatically followed the redirect, not what DVWA's login
+response itself said. If the auto-followed GET to index.php raced ahead
+of the session write finishing, it could bounce back to login.php,
+making a genuinely successful login look like a failure.
 
-Login retry behavior: real testing showed DVWA occasionally rejects the
-FIRST one or two login attempts right after being freshly hit — a
-"cold start" hiccup, likely session-initialization related on DVWA's
-side — then succeeds normally within a couple of seconds with the exact
-same credentials. Confirmed via Apache access logs: two consecutive
-POST /login.php returning 200 ("Login failed"), followed two seconds
-later by two consecutive POSTs returning 302 (success), same script, same
-run. A short delay plus a few more retry attempts absorbs this cleanly.
+Fix: disable automatic redirect-following on the login POST and check
+the POST's own status code directly (301/302/303 = DVWA accepted the
+login). Session.post() still stores any Set-Cookie headers from that
+response into the session before we even decide whether to follow the
+redirect, so the session is already authenticated the moment we see a
+302 -- no need to chase the redirect at all to get a working session for
+the crawler/scanner to use afterward.
 """
 
 from __future__ import annotations
 
-import time
 from dataclasses import dataclass, field
 import requests
 from bs4 import BeautifulSoup
@@ -28,98 +29,73 @@ from bs4 import BeautifulSoup
 @dataclass
 class TargetProfile:
     name: str
-    base_url: str                      # e.g. "http://localhost/dvwa"
-    login_url: str                     # e.g. "http://localhost/dvwa/login.php"
+    base_url: str
+    login_url: str
     username: str
     password: str
-    extra: dict = field(default_factory=dict)  # target-specific knobs (e.g. security level)
+    extra: dict = field(default_factory=dict)
 
 
-def bootstrap_dvwa_session(
-    profile: TargetProfile, max_login_attempts: int = 4, retry_delay_seconds: float = 2.0
-) -> requests.Session:
-    """
-    Logs into DVWA and sets the security level cookie.
-    Returns an authenticated requests.Session ready for the crawler.
+def bootstrap_dvwa_session(profile: TargetProfile) -> requests.Session:
+    session = requests.Session()
 
-    Retries the login itself (not just the surrounding request) several
-    times, with a short delay between attempts — a fresh session/CSRF
-    token each attempt. This absorbs DVWA's observed cold-start flakiness
-    without masking a genuine credentials problem, since a real
-    credentials mismatch will fail identically every attempt and still
-    raise clearly after all retries are exhausted.
-    """
-    last_error = None
-
-    for attempt in range(1, max_login_attempts + 1):
-        session = requests.Session()
-
-        # Step 1: GET the login page to grab the CSRF token DVWA embeds in the form
-        login_page = session.get(profile.login_url, timeout=10)
-        soup = BeautifulSoup(login_page.text, "html.parser")
-        token_input = soup.find("input", {"name": "user_token"})
-        if token_input is None:
-            raise RuntimeError(
-                f"Could not find CSRF token on login page {profile.login_url}. "
-                "Is DVWA running and reachable at this URL?"
-            )
-        csrf_token = token_input.get("value", "")
-
-        # Step 2: POST credentials + token
-        login_payload = {
-            "username": profile.username,
-            "password": profile.password,
-            "Login": "Login",
-            "user_token": csrf_token,
-        }
-        resp = session.post(profile.login_url, data=login_payload, timeout=10)
-
-        if "login.php" not in resp.url.lower() and "login failed" not in resp.text.lower():
-            break  # success — fall through to security-level setup below
-
-        soup_snippet = BeautifulSoup(resp.text, "html.parser")
-        visible_text = soup_snippet.get_text(separator=" ", strip=True)[:300]
-        last_error = (
-            f"attempt {attempt}/{max_login_attempts} — HTTP {resp.status_code}, "
-            f"final URL {resp.url}, response text: {visible_text!r}"
+    login_page = session.get(profile.login_url, timeout=15)
+    soup = BeautifulSoup(login_page.text, "html.parser")
+    token_input = soup.find("input", {"name": "user_token"})
+    if token_input is None:
+        raise RuntimeError(
+            f"Could not find CSRF token on login page {profile.login_url}. "
+            "Is DVWA running and reachable at this URL?"
         )
-        if attempt < max_login_attempts:
-            print(f"[!] DVWA login attempt {attempt} failed, retrying in {retry_delay_seconds}s with a fresh session: {visible_text!r}")
-            time.sleep(retry_delay_seconds)
+    csrf_token = token_input.get("value", "")
+
+    login_payload = {
+        "username": profile.username,
+        "password": profile.password,
+        "Login": "Login",
+        "user_token": csrf_token,
+    }
+
+    # allow_redirects=False is the actual fix: judge DVWA's login response
+    # on its own terms, not on wherever automatic redirect-following ends
+    # up landing.
+    resp = session.post(profile.login_url, data=login_payload, timeout=15, allow_redirects=False)
+
+    if resp.status_code in (301, 302, 303):
+        # Success -- DVWA told us to redirect (almost always to index.php).
+        # The session object already has whatever cookies this response
+        # set. We don't need to actually follow the redirect for the
+        # session to be usable by the crawler/scanner afterward.
+        pass
+    elif resp.status_code == 200 and "login failed" in resp.text.lower():
+        raise RuntimeError(
+            f"DVWA login failed -- credentials rejected. "
+            f"HTTP {resp.status_code}, response text: "
+            f"{BeautifulSoup(resp.text, 'html.parser').get_text(separator=' ', strip=True)[:300]!r}"
+        )
     else:
         raise RuntimeError(
-            f"DVWA login failed after {max_login_attempts} attempts. Last failure — {last_error}"
+            f"DVWA login gave an unexpected response -- HTTP {resp.status_code}, "
+            f"body starts with: {resp.text[:200]!r}"
         )
 
-    # Step 3: set security level (low/medium/high), stored in profile.extra
     security_level = profile.extra.get("security_level", "low")
     security_url = f"{profile.base_url.rstrip('/')}/security.php"
-    sec_page = session.get(security_url, timeout=10)
+    sec_page = session.get(security_url, timeout=15)
     sec_soup = BeautifulSoup(sec_page.text, "html.parser")
     sec_token_input = sec_soup.find("input", {"name": "user_token"})
     sec_token = sec_token_input.get("value", "") if sec_token_input else ""
 
     session.post(
         security_url,
-        data={
-            "security": security_level,
-            "seclev_submit": "Submit",
-            "user_token": sec_token,
-        },
-        timeout=10,
+        data={"security": security_level, "seclev_submit": "Submit", "user_token": sec_token},
+        timeout=15,
     )
 
     return session
 
 
 def bootstrap_session(profile: TargetProfile) -> requests.Session:
-    """
-    Dispatches to the right bootstrap routine based on profile.name.
-    Add new branches here (e.g. "juice_shop") without touching callers.
-    """
     if profile.name.lower() == "dvwa":
         return bootstrap_dvwa_session(profile)
-
-    raise NotImplementedError(
-        f"No session bootstrap implemented for target '{profile.name}' yet."
-    )
+    raise NotImplementedError(f"No session bootstrap implemented for target '{profile.name}' yet.")
